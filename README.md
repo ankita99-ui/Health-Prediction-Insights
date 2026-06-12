@@ -22,7 +22,7 @@ add/update/delete flows.
 
 ## Demo
 
-https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif
+![MIRA App Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
 
 
 ## Architecture
@@ -44,39 +44,36 @@ https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mi
 
 ## Project Structure
 
-```
 task1/
-├── backend/                  # Everything server-side
-│   ├── app/                  # FastAPI package
-│   │   ├── main.py           # App entry point, startup logic
-│   │   ├── database.py       # SQL Server connection (SQLAlchemy engine/session)
-│   │   ├── models.py         # ORM model = database table definition
-│   │   ├── schemas.py        # Pydantic schemas = request/response validation
-│   │   ├── crud.py           # All database operations in one place
+├── backend/                      # Everything server-side
+│   ├── app/                      # FastAPI package
+│   │   ├── main.py               # App entry point, startup logic
+│   │   ├── database.py           # SQL Server connection (SQLAlchemy engine/session)
+│   │   ├── models.py             # ORM model = database table definition
+│   │   ├── schemas.py            # Pydantic schemas = request/response validation
+│   │   ├── crud.py               # All database operations in one place
 │   │   ├── routers/
-│   │   │   └── patients.py   # REST endpoints (CRUD)
+│   │   │   └── patients.py       # REST endpoints (CRUD)
 │   │   └── ml/
-│   │       ├── train_model.py # ML training pipeline (data → train → save)
-│   │       └── predictor.py   # Loads the model, generates the Remarks text
-│   ├── models/               # Trained model + metrics (health_model.joblib)
+│   │       ├── train_model.py    # ML training pipeline (data → train → save)
+│   │       └── predictor.py      # Loads the model, generates the Remarks text
+│   ├── models/                   # Trained model + metrics (health_model.joblib)
 │   ├── database/
-│   │   └── create_database.sql # Schema script for SSMS (documentation)
+│   │   └── create_database.sql   # Schema script for SSMS (documentation)
 │   └── tests/
-│       └── test_api.py       # API tests (pytest)
-├── frontend/                 # Everything client-side
-│   ├── streamlit_app.py      # Streamlit app (talks only to the API)
+│       └── test_api.py           # API tests (pytest)
+├── frontend/                     # Everything client-side
+│   ├── streamlit_app.py          # Streamlit app (talks only to the API)
 │   ├── ui/
-│   │   ├── home.py           # Home page + dashboard components
-│   │   └── styles.py         # All custom CSS in one place
+│   │   ├── home.py               # Home page + dashboard components
+│   │   └── styles.py             # All custom CSS in one place
 │   └── .streamlit/
-│       └── config.toml       # Streamlit theme
-├── seed_data.py              # Optional: fill the DB with 20 sample patients
+│       └── config.toml           # Streamlit theme
+├── seed_data.py                  # Optional: fill the DB with 20 sample patients
 ├── requirements.txt
-├── .env.example              # Configuration template (no secrets committed)
+├── .env.example                  # Configuration template (no secrets committed)
 ├── Dockerfile
 └── README.md
-```
-
 
 
 
