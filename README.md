@@ -22,7 +22,7 @@ add/update/delete flows.
 
 ## Demo
 
-![MIRA Preview](https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/mira_preview_small.gif)
+![MIRA Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
 
 
 
