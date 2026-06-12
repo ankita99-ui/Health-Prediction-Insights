@@ -1,7 +1,7 @@
 # MIRA — Health Prediction Application
 
 
-*MIRA (Medical Intelligence Robotic Automation* is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
+**MIRA (Medical Intelligence Robotic Automation** is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
 
 Built for the *Junior AI/ML Developer — Task 1* assessment.
 
@@ -20,19 +20,14 @@ Plus: a **REST API** (FastAPI) with auto-generated Swagger docs at `/docs`,
 and a Streamlit frontend with a landing page, dashboard and guided
 add/update/delete flows.
 
+## Demo
+
+![MIRA Preview](mira_preview_small.gif)
+
 ## Architecture
 
-```
-┌──────────────┐   HTTP (JSON)   ┌──────────────┐   SQLAlchemy   ┌────────────┐
-│  Streamlit   │ ──────────────► │   FastAPI    │ ─────────────► │ SQL Server │
-│  frontend    │ ◄────────────── │   backend    │ ◄───────────── │ (HealthDB) │
-└──────────────┘                 └──────┬───────┘                └────────────┘
-                                        │
-                                        ▼
-                                 ┌──────────────┐
-                                 │ RandomForest │  predicts risk level →
-                                 │   ML model   │  fills the Remarks field
-                                 └──────────────┘
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/4b5004da-af0d-4f43-905e-3d7bd6b9738f" />
+
 ```
 
 ## Tech Stack
@@ -86,146 +81,30 @@ After the one-time setup below, just **double-click `start_app.bat`** in the
 project root - it opens the backend and frontend in two windows and the
 website appears at http://localhost:8501.
 
-## One-Time Setup (Windows)
 
-Prerequisites: Python 3.11+, SQL Server with ODBC Driver 17 (both already
-present if you use SSMS locally).
+## Conclusion
 
-```powershell
-# 1. Create and activate a virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+MIRA successfully integrates Machine Learning with a full-stack Python application for healthcare data management and health risk prediction. The system provides CRUD operations, automated predictions based on patient blood test data, and secure data storage using SQL Server. This project demonstrates practical skills in Python, Streamlit, Machine Learning, database integration, and software development best practices. The current model uses sample healthcare data and is intended for educational and demonstration purposes only.
 
-# 2. Install dependencies
-pip install -r requirements.txt
 
-# 3. Create the database (SQL Server users - one time only).
-#    Either run backend/database/create_database.sql in SSMS,
-#    or run this one-liner (adjust the instance name to yours):
-sqlcmd -S "localhost\MSSQL" -E -Q "IF DB_ID('HealthDB') IS NULL CREATE DATABASE HealthDB"
+## References
 
-# 4. Train the ML model (also happens automatically on first start)
-cd backend
-python -m app.ml.train_model
-```
+[1] Géron, A., *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*, 3rd Edition, O'Reilly Media, 2022.
 
-### Database configuration
+[2] Raschka, S., Liu, Y., and Mirjalili, V., *Machine Learning with PyTorch and Scikit-Learn*, Packt Publishing, 2022.
 
-The app reads its settings from a `.env` file in the project root.
-Copy `.env.example` to `.env` and adjust:
+[3] VanderPlas, J., *Python Data Science Handbook*, O'Reilly Media, 2016.
 
-- **Have SQL Server?** Set `MSSQL_SERVER` to *your* instance name - the same
-  "Server name" you type into SSMS (common values: `localhost\SQLEXPRESS`,
-  `localhost\MSSQL`, or just `localhost`). Windows Authentication is used,
-  so no password is needed.
-- **No SQL Server?** Uncomment `DATABASE_URL=sqlite:///./health_app.db` in
-  `.env` and the app runs with a zero-installation SQLite file instead -
-  skip step 3 entirely.
+[4] McKinney, W., *Python for Data Analysis*, 3rd Edition, O'Reilly Media, 2022.
 
-## Running the App (every time)
+[5] Beaulieu, A., *Learning SQL: Generate, Manipulate, and Retrieve Data*, 3rd Edition, O'Reilly Media, 2020.
 
-Easiest way: double-click **`start_app.bat`** in the project root.
+[6] Delaney, K., *SQL Server Internals*, Microsoft Press, 2019.
 
-Manual way - the app has two parts, so you need **two terminals**:
+[7] Microsoft Corporation, *SQL Server Documentation*, Microsoft Learn.
 
-```powershell
-# Terminal 1 - backend API (keep this window open)
-cd e:\task1\backend
-..\.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-# wait until you see "Application startup complete"
-# API docs: http://127.0.0.1:8000/docs
-```
+[8] The Scikit-Learn Development Team, *Scikit-Learn User Guide and Documentation*.
 
-```powershell
-# Terminal 2 - frontend website (keep this window open)
-cd e:\task1\frontend
-..\.venv\Scripts\Activate.ps1
-streamlit run streamlit_app.py
-# Website: http://localhost:8501
-```
+[9] Streamlit Inc., *Streamlit Documentation and Developer Guide*.
 
-> **Notes**
-> - Run each command from the folder shown above. Running
->   `streamlit run streamlit_app.py` from the project root fails with
->   *"No such file or directory"* because the file lives in `frontend/`.
-> - Only one copy can run at a time. A *"port already in use"* error means
->   the app is already running - just open http://localhost:8501.
-> - (Optional) `python seed_data.py` from the project root fills the
->   database with 20 sample patients for a demo.
-
-By default the app connects to `localhost\MSSQL`, database `HealthDB`, using
-Windows Authentication. Override via environment variables (see
-`.env.example`): `MSSQL_SERVER`, `MSSQL_DATABASE`, `MSSQL_DRIVER`, or a full
-`DATABASE_URL`.
-
-## API Endpoints
-
-| Method | Endpoint             | Description                              |
-| ------ | -------------------- | ---------------------------------------- |
-| GET    | `/api/patients`      | List all patients                        |
-| GET    | `/api/patients/{id}` | Get one patient                          |
-| POST   | `/api/patients`      | Create patient (AI fills `remarks`)      |
-| PUT    | `/api/patients/{id}` | Update patient (AI re-fills `remarks`)   |
-| DELETE | `/api/patients/{id}` | Delete patient                           |
-
-Example request — `POST /api/patients`:
-
-```json
-{
-  "full_name": "Asha Patel",
-  "date_of_birth": "1990-05-14",
-  "email": "asha@example.com",
-  "glucose": 132,
-  "haemoglobin": 10.5,
-  "cholesterol": 245
-}
-```
-
-Example response (`201 Created`):
-
-```json
-{
-  "full_name": "Asha Patel",
-  "date_of_birth": "1990-05-14",
-  "email": "asha@example.com",
-  "glucose": 132.0,
-  "haemoglobin": 10.5,
-  "cholesterol": 245.0,
-  "id": 1,
-  "remarks": "AI Prediction: High Risk (97% confidence) - Possible diabetes (glucose 132 mg/dL); possible anaemia (haemoglobin 10.5 g/dL); high cholesterol (cholesterol 245 mg/dL).",
-  "created_at": "2026-06-12T09:00:00",
-  "updated_at": "2026-06-12T09:00:00"
-}
-```
-
-## How the ML Prediction Works
-
-1. `app/ml/train_model.py` generates a synthetic dataset of 6,000 patients
-   based on **real medical reference ranges** (fasting glucose, haemoglobin,
-   total cholesterol), labels each one Low/Moderate/High risk, and trains a
-   **RandomForest classifier** (~97% accuracy on the held-out test set).
-2. The model is saved to `models/health_model.joblib`.
-3. On every Create/Update, `app/ml/predictor.py` predicts the risk level with
-   a confidence score, and rule-based checks add an explanation of which
-   values are out of range. The combined text is stored in `remarks`.
-
-> Disclaimer: this is a coding-assessment demo, **not** medical advice.
-
-## Testing
-
-```powershell
-cd backend
-pytest -v
-```
-
-Tests cover: creation with AI remarks, abnormal-value flagging, invalid email,
-future date of birth, non-numeric values, duplicate email, and the full
-read → update → delete flow. They run against a temporary SQLite database, so
-your SQL Server data is never touched.
-
-## Security Notes
-
-- No passwords or API keys are stored in the repository
-- Database credentials come from environment variables (`.env` is gitignored)
-- Windows Authentication is used locally, so no secret is needed at all
+[10] UCI Machine Learning Repository, *Pima Indians Diabetes Dataset*.
