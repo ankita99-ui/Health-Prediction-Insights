@@ -44,7 +44,6 @@ https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mi
 
 
 
-
 ## Project Structure
 ```
 task1/
@@ -78,6 +77,7 @@ task1/
 ├── Dockerfile
 └── README.md
 ```
+
 
 ## Quick Start (Windows)
 
