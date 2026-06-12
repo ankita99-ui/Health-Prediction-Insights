@@ -42,9 +42,8 @@ https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mi
 | Validation | Pydantic v2                 | Declarative request/response validation      |
 
 
-
-
 ## Project Structure
+
 ```
 task1/
 ├── backend/                  # Everything server-side
@@ -77,6 +76,9 @@ task1/
 ├── Dockerfile
 └── README.md
 ```
+
+
+
 
 
 ## Quick Start (Windows)
