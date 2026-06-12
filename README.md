@@ -19,18 +19,20 @@ Built for the *Junior AI/ML Developer — Task 1* assessment.
 Plus: a **REST API** (FastAPI) with auto-generated Swagger docs at `/docs`,
 and a Streamlit frontend with a landing page, dashboard and guided
 add/update/delete flows.
-
+```
+```
 ## Demo
 
 ![MIRA App Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
 
-
+```
+```
 ## Architecture
 
 <img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/4b5004da-af0d-4f43-905e-3d7bd6b9738f" />
 
 ```
-
+```
 ## Tech Stack
 
 | Layer      | Technology                  | Why                                          |
@@ -41,9 +43,9 @@ add/update/delete flows.
 | ML         | scikit-learn RandomForest   | Reliable classifier, easy to train and ship  |
 | Validation | Pydantic v2                 | Declarative request/response validation      |
 
-
+```
+```
 ## Project Structure
-
 task1/
 ├── backend/                      # Everything server-side
 │   ├── app/                      # FastAPI package
@@ -75,22 +77,46 @@ task1/
 ├── Dockerfile
 └── README.md
 
+```
 
-
-
+```
 ## Quick Start (Windows)
 
 After the one-time setup below, just **double-click `start_app.bat`** in the
 project root - it opens the backend and frontend in two windows and the
 website appears at http://localhost:8501.
-
-
+```
+```
+## Future Improvements
+* User Authentication & Authorization
+* Role-Based Access Control
+* Model Retraining Dashboard
+* PDF Report Generation
+* Cloud Deployment
+* Advanced Health Analytics
+* Real Healthcare Dataset Integration
+```
+```
 ## Conclusion
 
-MIRA successfully integrates Machine Learning with a full-stack Python application for healthcare data management and health risk prediction. The system provides CRUD operations, automated predictions based on patient blood test data, and secure data storage using SQL Server. This project demonstrates practical skills in Python, Streamlit, Machine Learning, database integration, and software development best practices. The current model uses sample healthcare data and is intended for educational and demonstration purposes only.
+MIRA successfully integrates Machine Learning into a full-stack healthcare application. The system provides patient management, automated health risk prediction, and secure SQL Server data storage through a modern FastAPI and Streamlit architecture.
 
+The project demonstrates practical experience in:
 
+* Python Development
+* Machine Learning
+* FastAPI APIs
+* SQL Server Integration
+* Streamlit UI Development
+* Software Engineering Best Practices
+
+Note: The prediction model is trained on sample healthcare data and is intended for educational and demonstration purposes only. It should not be used for real clinical decision-making.
+
+```
+
+```
 ## References
+```
 
 [1] Géron, A., *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*, 3rd Edition, O'Reilly Media, 2022.
 
