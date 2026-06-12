@@ -22,8 +22,7 @@ add/update/delete flows.
 
 ## Demo
 
-![MIRA Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
-
+https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif
 
 
 ## Architecture
@@ -45,8 +44,8 @@ add/update/delete flows.
 
 
 
-## Project Structure
 
+## Project Structure
 ```
 task1/
 ├── backend/                  # Everything server-side
