@@ -1,7 +1,7 @@
 # MIRA — Health Prediction Application
 
 
-**MIRA (Medical Intelligence Robotic Automation** is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
+**MIRA (Medical Intelligence Robotic Automation)** is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
 
 Built for the *Junior AI/ML Developer — Task 1* assessment.
 
@@ -22,7 +22,9 @@ add/update/delete flows.
 
 ## Demo
 
-![MIRA Preview](mira_preview_small.gif)
+![MIRA Preview](https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/mira_preview_small.gif)
+
+
 
 ## Architecture
 
@@ -39,6 +41,9 @@ add/update/delete flows.
 | Database   | SQL Server (via SQLAlchemy) | Robust relational storage, manageable in SSMS|
 | ML         | scikit-learn RandomForest   | Reliable classifier, easy to train and ship  |
 | Validation | Pydantic v2                 | Declarative request/response validation      |
+
+
+
 
 ## Project Structure
 
