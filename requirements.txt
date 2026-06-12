@@ -1,0 +1,22 @@
+# Backend
+fastapi>=0.115
+uvicorn[standard]>=0.32
+sqlalchemy>=2.0
+pyodbc>=5.1
+pydantic[email]>=2.9
+python-dotenv>=1.0
+
+# Machine Learning
+scikit-learn>=1.5
+joblib>=1.4
+numpy>=2.0
+
+# Frontend
+streamlit>=1.39
+pandas>=2.2
+requests>=2.32
+plotly>=5.24
+
+# Development / testing
+pytest>=8.0
+httpx>=0.27

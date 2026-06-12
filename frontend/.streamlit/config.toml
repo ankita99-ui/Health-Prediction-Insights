@@ -1,0 +1,15 @@
+# Global Streamlit theme - applied to every widget automatically.
+[theme]
+base = "light"
+primaryColor = "#6f42c1"            # violet - buttons, sliders, focus rings
+backgroundColor = "#f6f7fb"         # soft grey-blue page background
+secondaryBackgroundColor = "#ffffff" # sidebar / cards
+textColor = "#1f2333"
+font = "sans serif"
+
+[server]
+# File watching is disabled: the watchdog-based watcher is unstable on
+# Windows + Python 3.13 and crashed the app. After editing code, restart
+# Streamlit (or press 'R' in the browser) instead of relying on auto-reload.
+fileWatcherType = "none"
+runOnSave = false
