@@ -1,8 +1,7 @@
 # MIRA — Health Prediction Application
 
-A health prediction app that manages patient blood test records (CRUD) and
-uses a trained Machine Learning model to predict a health risk level, which is
-saved in the **Remarks** field of every record.
+
+*MIRA (Medical Intelligence Robotic Automation* is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
 
 Built for the *Junior AI/ML Developer — Task 1* assessment.
 
