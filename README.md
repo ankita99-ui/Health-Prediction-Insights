@@ -19,74 +19,78 @@ Built for the *Junior AI/ML Developer*
 Plus: a **REST API** (FastAPI) with auto-generated Swagger docs at `/docs`,
 and a Streamlit frontend with a landing page, dashboard and guided
 add/update/delete flows.
+
 ## Demo
 
 ![MIRA App Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
 
 ## Architecture
 
-<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/4b5004da-af0d-4f43-905e-3d7bd6b9738f" />
+![MIRA Architecture](https://github.com/user-attachments/assets/4b5004da-af0d-4f43-905e-3d7bd6b9738f)
 
 ## Tech Stack
 
-| Layer      | Technology                  | Why                                           |
-| ---------- | --------------------------- | --------------------------------------------- |
-| Frontend   | Streamlit                   | Pure-Python UI, no HTML/CSS/JS needed         |
-| Backend    | FastAPI + Uvicorn           | Fast, modern, automatic validation and docs   |
-| Database   | SQL Server (via SQLAlchemy) | Robust relational storage, manageable in SSMS |
-| ML         | scikit-learn RandomForest   | Reliable classifier, easy to train and ship   |
-| Validation | Pydantic v2                 | Declarative request/response validation       |
+| Layer | Technology | Why |
+|--------|------------|------|
+| Frontend | Streamlit | Pure-Python UI, no HTML/CSS/JS needed |
+| Backend | FastAPI + Uvicorn | Fast, modern, automatic validation and docs |
+| Database | SQL Server (via SQLAlchemy) | Robust relational storage, manageable in SSMS |
+| ML | scikit-learn RandomForest | Reliable classifier, easy to train and ship |
+| Validation | Pydantic v2 | Declarative request/response validation |
 
 ## Project Structure
 
+```text
 task1/
-├── backend/                  # Everything server-side
-│   ├── app/                  # FastAPI package
-│   │   ├── main.py           # App entry point, startup logic
-│   │   ├── database.py       # SQL Server connection (SQLAlchemy engine/session)
-│   │   ├── models.py         # ORM: patients + patient_history tables
-│   │   ├── schemas.py        # Pydantic schemas = request/response validation
-│   │   ├── crud.py           # All database operations in one place
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── crud.py
 │   │   ├── routers/
-│   │   │   └── patients.py   # REST endpoints (CRUD)
+│   │   │   └── patients.py
 │   │   └── ml/
-│   │       ├── train_model.py # ML training pipeline (data → train → save)
-│   │       └── predictor.py   # Loads the model, generates the Remarks text
-│   ├── models/               # Trained model + metrics (health_model.joblib)
+│   │       ├── train_model.py
+│   │       └── predictor.py
+│   ├── models/
 │   ├── database/
-│   │   └── create_database.sql # Schema script for SSMS (documentation)
+│   │   └── create_database.sql
 │   └── tests/
-│       └── test_api.py       # API tests (pytest)
-├── frontend/                 # Everything client-side
-│   ├── streamlit_app.py      # Streamlit app (talks only to the API)
+│       └── test_api.py
+├── frontend/
+│   ├── streamlit_app.py
 │   ├── ui/
-│   │   ├── home.py           # Home page + dashboard components
-│   │   ├── history.py        # Update History page + trend graphs
-│   │   └── styles.py         # All custom CSS in one place
+│   │   ├── home.py
+│   │   ├── history.py
+│   │   └── styles.py
 │   └── .streamlit/
-│       └── config.toml       # Streamlit theme
-├── seed_data.py              # Optional: fill the DB with 20 sample patients
+│       └── config.toml
+├── seed_data.py
 ├── requirements.txt
-├── .env.example              # Configuration template (no secrets committed)
+├── .env.example
 ├── Dockerfile
 └── README.md
 ```
 
 ## Quick Start (Windows)
 
-After the one-time setup below, just **double-click `start_app.bat`** in the
-project root - it opens the backend and frontend in two windows and the
-website appears at http://localhost:8501.
+After the one-time setup below, just **double-click `start_app.bat`** in the project root. It opens the backend and frontend in two windows and launches the application at:
+
+```text
+http://localhost:8501
+```
 
 ## Future Improvements
 
-* User Authentication & Authorization
-* Role-Based Access Control
-* Model Retraining Dashboard
-* PDF Report Generation
-* Cloud Deployment
-* Advanced Health Analytics
-* Real Healthcare Dataset Integration
+- User Authentication & Authorization
+- Role-Based Access Control
+- Model Retraining Dashboard
+- PDF Report Generation
+- Cloud Deployment
+- Advanced Health Analytics
+- Real Healthcare Dataset Integration
 
 ## Conclusion
 
@@ -94,14 +98,14 @@ MIRA successfully integrates Machine Learning into a full-stack healthcare appli
 
 The project demonstrates practical experience in:
 
-* Python Development
-* Machine Learning
-* FastAPI APIs
-* SQL Server Integration
-* Streamlit UI Development
-* Software Engineering Best Practices
+- Python Development
+- Machine Learning
+- FastAPI APIs
+- SQL Server Integration
+- Streamlit UI Development
+- Software Engineering Best Practices
 
-**Note:** The prediction model is trained on sample healthcare data and is intended for educational and demonstration purposes only. It should not be used for real clinical decision-making.
+> **Note:** The prediction model is trained on sample healthcare data and is intended for educational and demonstration purposes only. It should not be used for real clinical decision-making.
 
 ## References
 
