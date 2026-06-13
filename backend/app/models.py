@@ -2,8 +2,8 @@
 
 from datetime import date, datetime, timezone
 
-from sqlalchemy import Date, DateTime, Float, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Date, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
 
@@ -34,3 +34,31 @@ class Patient(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
+
+    history: Mapped[list["PatientHistory"]] = relationship(
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        order_by="PatientHistory.recorded_at",
+    )
+
+
+class PatientHistory(Base):
+    """One snapshot per create/update — tracks how blood values and risk change over time."""
+
+    __tablename__ = "patient_history"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    patient_id: Mapped[int] = mapped_column(
+        ForeignKey("patients.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    glucose: Mapped[float] = mapped_column(Float, nullable=False)
+    haemoglobin: Mapped[float] = mapped_column(Float, nullable=False)
+    cholesterol: Mapped[float] = mapped_column(Float, nullable=False)
+    remarks: Mapped[str] = mapped_column(String(500), nullable=False)
+    risk_level: Mapped[str] = mapped_column(String(20), nullable=False)  # Low / Moderate / High
+    source: Mapped[str] = mapped_column(String(20), nullable=False)  # create / update
+    recorded_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+    patient: Mapped["Patient"] = relationship(back_populates="history")

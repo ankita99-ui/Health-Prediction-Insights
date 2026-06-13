@@ -10,8 +10,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.database import Base, engine
+from app.database import Base, engine, SessionLocal
 from app.ml.predictor import _load_model
+from app import crud
 from app.routers import patients
 
 
@@ -21,6 +22,12 @@ async def lifespan(app: FastAPI):
     # (trains it automatically on first run if the file is missing).
     Base.metadata.create_all(bind=engine)
     _load_model()
+    # Backfill history for patients created before this feature existed.
+    db = SessionLocal()
+    try:
+        crud.backfill_patient_history(db)
+    finally:
+        db.close()
     yield
 
 

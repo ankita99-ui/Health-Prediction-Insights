@@ -94,3 +94,16 @@ def test_read_update_delete_flow(client):
     # DELETE
     assert client.delete(f"/api/patients/{pid}").status_code == 204
     assert client.get(f"/api/patients/{pid}").status_code == 404
+
+
+def test_update_builds_history(client):
+    pid = client.post("/api/patients", json=VALID_PATIENT).json()["id"]
+    hist = client.get(f"/api/patients/{pid}/history").json()
+    assert len(hist) == 1
+    assert hist[0]["source"] == "create"
+
+    client.put(f"/api/patients/{pid}", json={**VALID_PATIENT, "glucose": 180})
+    hist2 = client.get(f"/api/patients/{pid}/history").json()
+    assert len(hist2) == 2
+    assert hist2[-1]["source"] == "update"
+    assert hist2[-1]["patient_id"] == pid

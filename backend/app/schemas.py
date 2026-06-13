@@ -54,3 +54,19 @@ class PatientOut(PatientBase):
 
     # Lets Pydantic read attributes straight from the SQLAlchemy object.
     model_config = ConfigDict(from_attributes=True)
+
+
+class HistoryOut(BaseModel):
+    """One blood-test snapshot for a patient (create or update)."""
+
+    id: int
+    patient_id: int
+    glucose: float
+    haemoglobin: float
+    cholesterol: float
+    remarks: str
+    risk_level: str
+    source: str
+    recorded_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

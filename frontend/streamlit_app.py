@@ -18,6 +18,7 @@ import requests
 import streamlit as st
 
 from ui.home import render_charts, render_home, render_sidebar_steps, render_stats
+from ui.history import render_history_page
 from ui.styles import inject_css
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
@@ -77,6 +78,12 @@ def api_error_text(response: requests.Response) -> str:
 
 def fetch_patients() -> list[dict]:
     response = requests.get(PATIENTS, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+
+def fetch_patient_history(patient_id: int) -> list[dict]:
+    response = requests.get(f"{PATIENTS}/{patient_id}/history", timeout=10)
     response.raise_for_status()
     return response.json()
 
@@ -147,7 +154,14 @@ def patient_label(p: dict) -> str:
     return f"{RISK_EMOJI[risk_level(p['remarks'])]} #{p['id']} — {p['full_name']} ({p['email']})"
 
 
-PAGES = ["🏠 Home", "📊 Dashboard", "➕ Add Patient", "✏️ Update Patient", "🗑️ Delete Patient"]
+PAGES = [
+    "🏠 Home",
+    "📊 Dashboard",
+    "📈 Update History",
+    "➕ Add Patient",
+    "✏️ Update Patient",
+    "🗑️ Delete Patient",
+]
 
 
 def go_to(page_name: str):
@@ -312,6 +326,10 @@ elif page == "📊 Dashboard":
             )
             e2.caption(f"{len(filtered)} of {len(all_patients)} record(s) shown")
 
+# -------------------------------------------------------- UPDATE HISTORY ---
+elif page == "📈 Update History":
+    render_history_page(all_patients, fetch_patient_history, patient_label, section)
+
 # ----------------------------------------------------------------- CREATE ---
 elif page == "➕ Add Patient":
     section("➕ Add a New Patient",
@@ -350,6 +368,7 @@ elif page == "✏️ Update Patient":
                 updated = response.json()
                 st.success("✅ Patient updated — AI remarks regenerated!")
                 risk_card(updated["remarks"])
+                st.info("📈 See trends on **Update History** in the sidebar.")
             else:
                 st.error(f"❌ {api_error_text(response)}")
 

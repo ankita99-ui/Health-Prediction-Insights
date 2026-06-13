@@ -58,3 +58,12 @@ def delete_patient(patient_id: int, db: Session = Depends(get_db)):
     if patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
     crud.delete_patient(db, patient)
+
+
+@router.get("/{patient_id}/history", response_model=list[schemas.HistoryOut])
+def get_patient_history(patient_id: int, db: Session = Depends(get_db)):
+    """READ history: all blood-test snapshots for one patient (for trend graphs)."""
+    patient = crud.get_patient(db, patient_id)
+    if patient is None:
+        raise HTTPException(status_code=404, detail="Patient not found")
+    return crud.get_patient_history(db, patient_id)

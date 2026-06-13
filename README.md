@@ -1,10 +1,8 @@
 # MIRA — Health Prediction Application
 
-A health prediction app that manages patient blood test records (CRUD) and
-uses a trained Machine Learning model to predict a health risk level, which is
-saved in the **Remarks** field of every record.
+**MIRA (Medical Intelligence Robotic Automation)** is a full-stack health prediction web app that manages patient blood test records and uses a trained Machine Learning model to automatically predict a patient's health risk level — saved directly into the Remarks field of every record.
 
-Built for the *Junior AI/ML Developer — Task 1* assessment.
+Built for the *Junior AI/ML Developer*
 
 ## Features
 
@@ -12,6 +10,7 @@ Built for the *Junior AI/ML Developer — Task 1* assessment.
 | --- | --- |
 | 🗂️ **Patient Management** | Full CRUD — create, view, update and delete patient records, with validation at every step (email format, no future date of birth, numeric blood values — checked in the UI **and** again on the server with Pydantic) |
 | 🤖 **AI Prediction Engine** | A trained RandomForest classifier (scikit-learn) predicts Low / Moderate / High health risk from age, glucose, haemoglobin and cholesterol, with a confidence score — written automatically into the Remarks field |
+| 📈 **Update History & Trends** | When you **update** an existing patient (same ID), each save adds a snapshot to `patient_history`. The **Update History** page shows Plotly line charts for glucose, haemoglobin and cholesterol, plus risk-level changes (e.g. High → Moderate) over time |
 | 📈 **Real-Time Dashboard** | Live KPI cards, search, risk-level filters and Plotly charts that refresh automatically after every change |
 | ⬇️ **CSV Export** | Download the complete patient dataset as a CSV file for reports and offline analysis |
 | 🧪 **Risk Analysis** | Per-metric explanations show exactly *which* blood values are outside normal clinical ranges, so the prediction is never a black box |
@@ -21,212 +20,111 @@ Plus: a **REST API** (FastAPI) with auto-generated Swagger docs at `/docs`,
 and a Streamlit frontend with a landing page, dashboard and guided
 add/update/delete flows.
 
+## Demo
+
+![MIRA App Preview](https://raw.githubusercontent.com/ankita99-ui/Health-Prediction-Insights/main/mira_preview_small.gif)
+
 ## Architecture
 
-```
-┌──────────────┐   HTTP (JSON)   ┌──────────────┐   SQLAlchemy   ┌────────────┐
-│  Streamlit   │ ──────────────► │   FastAPI    │ ─────────────► │ SQL Server │
-│  frontend    │ ◄────────────── │   backend    │ ◄───────────── │ (HealthDB) │
-└──────────────┘                 └──────┬───────┘                └────────────┘
-                                        │
-                                        ▼
-                                 ┌──────────────┐
-                                 │ RandomForest │  predicts risk level →
-                                 │   ML model   │  fills the Remarks field
-                                 └──────────────┘
-```
+![MIRA Architecture](https://github.com/user-attachments/assets/4b5004da-af0d-4f43-905e-3d7bd6b9738f)
 
 ## Tech Stack
 
-| Layer      | Technology                  | Why                                          |
-| ---------- | --------------------------- | -------------------------------------------- |
-| Frontend   | Streamlit                   | Pure-Python UI, no HTML/CSS/JS needed        |
-| Backend    | FastAPI + Uvicorn           | Fast, modern, automatic validation and docs  |
-| Database   | SQL Server (via SQLAlchemy) | Robust relational storage, manageable in SSMS|
-| ML         | scikit-learn RandomForest   | Reliable classifier, easy to train and ship  |
-| Validation | Pydantic v2                 | Declarative request/response validation      |
+| Layer | Technology | Why |
+|--------|------------|------|
+| Frontend | Streamlit | Pure-Python UI, no HTML/CSS/JS needed |
+| Backend | FastAPI + Uvicorn | Fast, modern, automatic validation and docs |
+| Database | SQL Server (via SQLAlchemy) | Robust relational storage, manageable in SSMS |
+| ML | scikit-learn RandomForest | Reliable classifier, easy to train and ship |
+| Validation | Pydantic v2 | Declarative request/response validation |
 
 ## Project Structure
 
-```
+```text
 task1/
-├── backend/                  # Everything server-side
-│   ├── app/                  # FastAPI package
-│   │   ├── main.py           # App entry point, startup logic
-│   │   ├── database.py       # SQL Server connection (SQLAlchemy engine/session)
-│   │   ├── models.py         # ORM model = database table definition
-│   │   ├── schemas.py        # Pydantic schemas = request/response validation
-│   │   ├── crud.py           # All database operations in one place
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── crud.py
 │   │   ├── routers/
-│   │   │   └── patients.py   # REST endpoints (CRUD)
+│   │   │   └── patients.py
 │   │   └── ml/
-│   │       ├── train_model.py # ML training pipeline (data → train → save)
-│   │       └── predictor.py   # Loads the model, generates the Remarks text
-│   ├── models/               # Trained model + metrics (health_model.joblib)
+│   │       ├── train_model.py
+│   │       └── predictor.py
+│   ├── models/
 │   ├── database/
-│   │   └── create_database.sql # Schema script for SSMS (documentation)
+│   │   └── create_database.sql
 │   └── tests/
-│       └── test_api.py       # API tests (pytest)
-├── frontend/                 # Everything client-side
-│   ├── streamlit_app.py      # Streamlit app (talks only to the API)
+│       └── test_api.py
+├── frontend/
+│   ├── streamlit_app.py
 │   ├── ui/
-│   │   ├── home.py           # Home page + dashboard components
-│   │   └── styles.py         # All custom CSS in one place
+│   │   ├── home.py
+│   │   ├── history.py
+│   │   └── styles.py
 │   └── .streamlit/
-│       └── config.toml       # Streamlit theme
-├── seed_data.py              # Optional: fill the DB with 20 sample patients
+│       └── config.toml
+├── seed_data.py
 ├── requirements.txt
-├── .env.example              # Configuration template (no secrets committed)
+├── .env.example
 ├── Dockerfile
 └── README.md
 ```
 
 ## Quick Start (Windows)
 
-After the one-time setup below, just **double-click `start_app.bat`** in the
-project root - it opens the backend and frontend in two windows and the
-website appears at http://localhost:8501.
+After the one-time setup below, just **double-click `start_app.bat`** in the project root. It opens the backend and frontend in two windows and launches the application at:
 
-## One-Time Setup (Windows)
-
-Prerequisites: Python 3.11+, SQL Server with ODBC Driver 17 (both already
-present if you use SSMS locally).
-
-```powershell
-# 1. Create and activate a virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Create the database (SQL Server users - one time only).
-#    Either run backend/database/create_database.sql in SSMS,
-#    or run this one-liner (adjust the instance name to yours):
-sqlcmd -S "localhost\MSSQL" -E -Q "IF DB_ID('HealthDB') IS NULL CREATE DATABASE HealthDB"
-
-# 4. Train the ML model (also happens automatically on first start)
-cd backend
-python -m app.ml.train_model
+```text
+http://localhost:8501
 ```
 
-### Database configuration
+## Future Improvements
 
-The app reads its settings from a `.env` file in the project root.
-Copy `.env.example` to `.env` and adjust:
+- User Authentication & Authorization
+- Role-Based Access Control
+- Model Retraining Dashboard
+- PDF Report Generation
+- Cloud Deployment
+- Advanced Health Analytics
+- Real Healthcare Dataset Integration
 
-- **Have SQL Server?** Set `MSSQL_SERVER` to *your* instance name - the same
-  "Server name" you type into SSMS (common values: `localhost\SQLEXPRESS`,
-  `localhost\MSSQL`, or just `localhost`). Windows Authentication is used,
-  so no password is needed.
-- **No SQL Server?** Uncomment `DATABASE_URL=sqlite:///./health_app.db` in
-  `.env` and the app runs with a zero-installation SQLite file instead -
-  skip step 3 entirely.
+## Conclusion
 
-## Running the App (every time)
+MIRA successfully integrates Machine Learning into a full-stack healthcare application. The system provides patient management, automated health risk prediction, and secure SQL Server data storage through a modern FastAPI and Streamlit architecture.
 
-Easiest way: double-click **`start_app.bat`** in the project root.
+The project demonstrates practical experience in:
 
-Manual way - the app has two parts, so you need **two terminals**:
+- Python Development
+- Machine Learning
+- FastAPI APIs
+- SQL Server Integration
+- Streamlit UI Development
+- Software Engineering Best Practices
 
-```powershell
-# Terminal 1 - backend API (keep this window open)
-cd e:\task1\backend
-..\.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-# wait until you see "Application startup complete"
-# API docs: http://127.0.0.1:8000/docs
-```
+> **Note:** The prediction model is trained on sample healthcare data and is intended for educational and demonstration purposes only. It should not be used for real clinical decision-making.
 
-```powershell
-# Terminal 2 - frontend website (keep this window open)
-cd e:\task1\frontend
-..\.venv\Scripts\Activate.ps1
-streamlit run streamlit_app.py
-# Website: http://localhost:8501
-```
+## References
 
-> **Notes**
-> - Run each command from the folder shown above. Running
->   `streamlit run streamlit_app.py` from the project root fails with
->   *"No such file or directory"* because the file lives in `frontend/`.
-> - Only one copy can run at a time. A *"port already in use"* error means
->   the app is already running - just open http://localhost:8501.
-> - (Optional) `python seed_data.py` from the project root fills the
->   database with 20 sample patients for a demo.
+[1] Géron, A., *Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*, 3rd Edition, O'Reilly Media, 2022.
 
-By default the app connects to `localhost\MSSQL`, database `HealthDB`, using
-Windows Authentication. Override via environment variables (see
-`.env.example`): `MSSQL_SERVER`, `MSSQL_DATABASE`, `MSSQL_DRIVER`, or a full
-`DATABASE_URL`.
+[2] Raschka, S., Liu, Y., and Mirjalili, V., *Machine Learning with PyTorch and Scikit-Learn*, Packt Publishing, 2022.
 
-## API Endpoints
+[3] VanderPlas, J., *Python Data Science Handbook*, O'Reilly Media, 2016.
 
-| Method | Endpoint             | Description                              |
-| ------ | -------------------- | ---------------------------------------- |
-| GET    | `/api/patients`      | List all patients                        |
-| GET    | `/api/patients/{id}` | Get one patient                          |
-| POST   | `/api/patients`      | Create patient (AI fills `remarks`)      |
-| PUT    | `/api/patients/{id}` | Update patient (AI re-fills `remarks`)   |
-| DELETE | `/api/patients/{id}` | Delete patient                           |
+[4] McKinney, W., *Python for Data Analysis*, 3rd Edition, O'Reilly Media, 2022.
 
-Example request — `POST /api/patients`:
+[5] Beaulieu, A., *Learning SQL: Generate, Manipulate, and Retrieve Data*, 3rd Edition, O'Reilly Media, 2020.
 
-```json
-{
-  "full_name": "Asha Patel",
-  "date_of_birth": "1990-05-14",
-  "email": "asha@example.com",
-  "glucose": 132,
-  "haemoglobin": 10.5,
-  "cholesterol": 245
-}
-```
+[6] Delaney, K., *SQL Server Internals*, Microsoft Press, 2019.
 
-Example response (`201 Created`):
+[7] Microsoft Corporation, *SQL Server Documentation*, Microsoft Learn.
 
-```json
-{
-  "full_name": "Asha Patel",
-  "date_of_birth": "1990-05-14",
-  "email": "asha@example.com",
-  "glucose": 132.0,
-  "haemoglobin": 10.5,
-  "cholesterol": 245.0,
-  "id": 1,
-  "remarks": "AI Prediction: High Risk (97% confidence) - Possible diabetes (glucose 132 mg/dL); possible anaemia (haemoglobin 10.5 g/dL); high cholesterol (cholesterol 245 mg/dL).",
-  "created_at": "2026-06-12T09:00:00",
-  "updated_at": "2026-06-12T09:00:00"
-}
-```
+[8] The Scikit-Learn Development Team, *Scikit-Learn User Guide and Documentation*.
 
-## How the ML Prediction Works
+[9] Streamlit Inc., *Streamlit Documentation and Developer Guide*.
 
-1. `app/ml/train_model.py` generates a synthetic dataset of 6,000 patients
-   based on **real medical reference ranges** (fasting glucose, haemoglobin,
-   total cholesterol), labels each one Low/Moderate/High risk, and trains a
-   **RandomForest classifier** (~97% accuracy on the held-out test set).
-2. The model is saved to `models/health_model.joblib`.
-3. On every Create/Update, `app/ml/predictor.py` predicts the risk level with
-   a confidence score, and rule-based checks add an explanation of which
-   values are out of range. The combined text is stored in `remarks`.
-
-> Disclaimer: this is a coding-assessment demo, **not** medical advice.
-
-## Testing
-
-```powershell
-cd backend
-pytest -v
-```
-
-Tests cover: creation with AI remarks, abnormal-value flagging, invalid email,
-future date of birth, non-numeric values, duplicate email, and the full
-read → update → delete flow. They run against a temporary SQLite database, so
-your SQL Server data is never touched.
-
-## Security Notes
-
-- No passwords or API keys are stored in the repository
-- Database credentials come from environment variables (`.env` is gitignored)
-- Windows Authentication is used locally, so no secret is needed at all
+[10] UCI Machine Learning Repository, *Pima Indians Diabetes Dataset*.
