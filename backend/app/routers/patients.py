@@ -34,11 +34,11 @@ def create_patient(payload: schemas.PatientCreate, db: Session = Depends(get_db)
     return crud.create_patient(db, payload)
 
 
-@router.put("/{patient_id}", response_model=schemas.PatientOut)
+@router.put("/{patient_id}", response_model=schemas.PatientUpdateOut)
 def update_patient(
     patient_id: int, payload: schemas.PatientUpdate, db: Session = Depends(get_db)
 ):
-    """UPDATE: replace the record and regenerate the AI remarks."""
+    """UPDATE: save changes; history + AI remarks only when blood values change."""
     patient = crud.get_patient(db, patient_id)
     if patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")
@@ -48,12 +48,15 @@ def update_patient(
         raise HTTPException(
             status_code=409, detail="A patient with this email already exists"
         )
-    return crud.update_patient(db, patient, payload)
+    patient, update_type = crud.update_patient(db, patient, payload)
+    data = schemas.PatientOut.model_validate(patient).model_dump()
+    data["update_type"] = update_type
+    return schemas.PatientUpdateOut(**data)
 
 
 @router.delete("/{patient_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_patient(patient_id: int, db: Session = Depends(get_db)):
-    """DELETE: remove the record; 204 means success with no response body."""
+    """DELETE: soft-delete — hidden from the app; row stays in SQL."""
     patient = crud.get_patient(db, patient_id)
     if patient is None:
         raise HTTPException(status_code=404, detail="Patient not found")

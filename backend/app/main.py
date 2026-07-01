@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
     # Backfill history for patients created before this feature existed.
     db = SessionLocal()
     try:
+        crud.migrate_soft_delete_columns(db)
         crud.backfill_patient_history(db)
     finally:
         db.close()

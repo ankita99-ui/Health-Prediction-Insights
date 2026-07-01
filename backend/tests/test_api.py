@@ -17,6 +17,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.database import Base, engine
+from app import models
 from app.main import app
 
 VALID_PATIENT = {
@@ -65,6 +66,13 @@ def test_future_dob_rejected(client):
     assert res.status_code == 422
 
 
+def test_invalid_dob_nov_31_rejected(client):
+    res = client.post("/api/patients", json={**VALID_PATIENT, "date_of_birth": "1980-11-31"})
+    assert res.status_code == 422
+    msg = res.json()["detail"][0]["msg"].lower()
+    assert "invalid day" in msg or "out of range" in msg
+
+
 def test_non_numeric_blood_value_rejected(client):
     res = client.post("/api/patients", json={**VALID_PATIENT, "glucose": "abc"})
     assert res.status_code == 422
@@ -91,9 +99,21 @@ def test_read_update_delete_flow(client):
     assert updated.status_code == 200
     assert "Low Risk" not in updated.json()["remarks"]
 
-    # DELETE
+    # DELETE (soft) — hidden from API but row remains in the database
     assert client.delete(f"/api/patients/{pid}").status_code == 204
     assert client.get(f"/api/patients/{pid}").status_code == 404
+    assert len(client.get("/api/patients").json()) == 0
+
+    from app.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        row = db.get(models.Patient, pid)
+        assert row is not None
+        assert row.is_deleted is True
+        assert row.deleted_at is not None
+    finally:
+        db.close()
 
 
 def test_update_builds_history(client):
@@ -107,3 +127,15 @@ def test_update_builds_history(client):
     assert len(hist2) == 2
     assert hist2[-1]["source"] == "update"
     assert hist2[-1]["patient_id"] == pid
+
+
+def test_email_only_update_skips_history(client):
+    pid = client.post("/api/patients", json=VALID_PATIENT).json()["id"]
+    res = client.put(
+        f"/api/patients/{pid}",
+        json={**VALID_PATIENT, "email": "newemail@example.com"},
+    )
+    assert res.status_code == 200
+    assert res.json()["update_type"] == "email_only"
+    assert res.json()["email"] == "newemail@example.com"
+    assert len(client.get(f"/api/patients/{pid}/history").json()) == 1

@@ -9,6 +9,22 @@ RISK_COLORS = {"Low": "#10b981", "Moderate": "#f59e0b", "High": "#ef4444"}
 RISK_ORDER = {"Low": 0, "Moderate": 1, "High": 2}
 
 
+def _chart_history_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Graphs only when blood test values change — skip duplicate snapshots."""
+    if len(df) <= 1:
+        return df
+    keep_idx = [0]
+    for i in range(1, len(df)):
+        prev, curr = df.iloc[i - 1], df.iloc[i]
+        if (
+            prev["glucose"] != curr["glucose"]
+            or prev["haemoglobin"] != curr["haemoglobin"]
+            or prev["cholesterol"] != curr["cholesterol"]
+        ):
+            keep_idx.append(i)
+    return df.iloc[keep_idx].copy()
+
+
 def render_history_page(
     all_patients: list[dict],
     fetch_history,
@@ -32,6 +48,12 @@ def render_history_page(
         key="history_select",
     )
 
+    flash = st.session_state.get("history_flash")
+    if flash and flash.get("patient_id") == selected["id"]:
+        st.success(flash["message"])
+        if flash.get("once"):
+            st.session_state.pop("history_flash", None)
+
     try:
         history = fetch_history(selected["id"])
     except Exception as exc:
@@ -46,13 +68,15 @@ def render_history_page(
     df["recorded_at"] = pd.to_datetime(df["recorded_at"])
     df = df.sort_values("recorded_at")
 
-    st.markdown(f"**Patient ID #{selected['id']}** — {selected['full_name']} ({selected['email']})")
-    st.caption(f"{len(df)} snapshot(s) on record")
+    chart_df = _chart_history_rows(df)
 
-    # Highlight risk changes (e.g. High → Moderate)
+    st.markdown(f"**Patient ID #{selected['id']}** — {selected['full_name']} ({selected['email']})")
+    st.caption(f"{len(df)} snapshot(s) on record · {len(chart_df)} point(s) on trend charts")
+
+    # Highlight risk changes (blood-value snapshots only)
     changes = []
-    for i in range(1, len(df)):
-        prev, curr = df.iloc[i - 1], df.iloc[i]
+    for i in range(1, len(chart_df)):
+        prev, curr = chart_df.iloc[i - 1], chart_df.iloc[i]
         if prev["risk_level"] != curr["risk_level"]:
             changes.append(
                 f"**{prev['recorded_at'].strftime('%d %b %Y %H:%M')}** → "
@@ -67,7 +91,7 @@ def render_history_page(
 
     # Blood values line chart
     st.markdown("##### 🩸 Blood test trends")
-    melted = df.melt(
+    melted = chart_df.melt(
         id_vars=["recorded_at", "source"],
         value_vars=["glucose", "haemoglobin", "cholesterol"],
         var_name="Test",
@@ -97,7 +121,7 @@ def render_history_page(
 
     # Risk level trend
     st.markdown("##### 🎯 Risk level over time")
-    risk_df = df.copy()
+    risk_df = chart_df.copy()
     risk_df["risk_score"] = risk_df["risk_level"].map(RISK_ORDER)
     risk_chart = go.Figure()
     risk_chart.add_trace(

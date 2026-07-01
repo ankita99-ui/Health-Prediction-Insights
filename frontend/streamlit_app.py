@@ -91,6 +91,7 @@ def fetch_patient_history(patient_id: int) -> list[dict]:
 def patient_form(defaults: dict | None = None, key: str = "form"):
     """Reusable Add/Edit form. Returns the submitted payload or None."""
     d = defaults or {}
+
     with st.form(key=key):
         col_a, col_b = st.columns(2)
         full_name = col_a.text_input(
@@ -103,7 +104,7 @@ def patient_form(defaults: dict | None = None, key: str = "form"):
             "🎂 Date of Birth",
             value=date.fromisoformat(d["date_of_birth"]) if d else date(2000, 1, 1),
             min_value=date(1900, 1, 1),
-            max_value=date.today(),  # future dates are impossible to pick
+            max_value=date.today(),
         )
 
         st.markdown("**🩸 Blood Test Values**")
@@ -360,15 +361,41 @@ elif page == "✏️ Update Patient":
         risk_card(selected["remarks"])
         payload = patient_form(defaults=selected, key=f"edit_form_{selected['id']}")
         if payload:
-            with st.spinner("Updating and re-running AI prediction..."):
+            email_only = (
+                payload["email"] != selected["email"]
+                and payload["glucose"] == selected["glucose"]
+                and payload["haemoglobin"] == selected["haemoglobin"]
+                and payload["cholesterol"] == selected["cholesterol"]
+                and payload["date_of_birth"] == selected["date_of_birth"]
+            )
+            spinner_msg = (
+                "Saving email…"
+                if email_only
+                else "Updating and re-running AI prediction..."
+            )
+            with st.spinner(spinner_msg):
                 response = requests.put(
                     f"{PATIENTS}/{selected['id']}", json=payload, timeout=30
                 )
             if response.status_code == 200:
                 updated = response.json()
-                st.success("✅ Patient updated — AI remarks regenerated!")
-                risk_card(updated["remarks"])
-                st.info("📈 See trends on **Update History** in the sidebar.")
+                update_type = updated.get("update_type", "blood_values")
+                if update_type == "email_only":
+                    msg = "✅ Email successfully updated!"
+                    st.success(msg)
+                    st.session_state["history_flash"] = {
+                        "patient_id": selected["id"],
+                        "message": msg,
+                        "once": False,
+                    }
+                elif update_type == "blood_values":
+                    st.success("✅ Patient updated — AI remarks regenerated!")
+                    risk_card(updated["remarks"])
+                    st.info("📈 See trends on **Update History** in the sidebar.")
+                    st.session_state.pop("history_flash", None)
+                else:
+                    st.success("✅ Patient details updated!")
+                    st.session_state.pop("history_flash", None)
             else:
                 st.error(f"❌ {api_error_text(response)}")
 
@@ -388,14 +415,18 @@ elif page == "🗑️ Delete Patient":
         info[2].metric("Cholesterol", f"{selected['cholesterol']:g} mg/dL")
         risk_card(selected["remarks"])
 
-        st.warning(f"⚠️ You are about to **permanently delete** {selected['full_name']}.")
+        st.warning(
+            f"⚠️ You are about to remove **{selected['full_name']}** from the app. "
+            "The record will stay in the database (SQL)."
+        )
         confirmed = st.checkbox("Yes, I am sure", key="delete_confirm")
         if st.button("🗑️ Delete Patient", type="primary", disabled=not confirmed):
             response = requests.delete(f"{PATIENTS}/{selected['id']}", timeout=10)
             if response.status_code == 204:
-                # Save the message, rerun so the list and metrics refresh,
-                # then the message is shown at the top of the new run.
-                st.session_state["flash"] = f"🗑️ Patient **{selected['full_name']}** deleted."
+                st.session_state["flash"] = (
+                    f"🗑️ Patient **{selected['full_name']}** removed from the app "
+                    "(row still in SQL — check `is_deleted = 1`)."
+                )
                 st.rerun()
             else:
                 st.error(f"❌ {api_error_text(response)}")

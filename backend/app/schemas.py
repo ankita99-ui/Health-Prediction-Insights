@@ -12,6 +12,31 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
+def _parse_dob(value) -> date:
+    """Validate YYYY-MM-DD (or date object) using strict calendar parsing."""
+    if isinstance(value, date):
+        d = value
+    elif isinstance(value, str):
+        normalized = value.strip().replace("/", "-")
+        try:
+            d = datetime.strptime(normalized, "%Y-%m-%d").date()
+        except ValueError as exc:
+            error_msg = str(exc)
+            if "day is out of range" in error_msg:
+                raise ValueError("Error: Invalid day for the specified month/year.") from exc
+            if "unconverted data remains" in error_msg:
+                raise ValueError("Error: Text does not match the YYYY-MM-DD format.") from exc
+            raise ValueError("Error: Invalid date, year, or month.") from exc
+    else:
+        raise ValueError("Please enter a valid date of birth")
+
+    if d > date.today():
+        raise ValueError("Error: DOB cannot be a future date.")
+    if d < date(1900, 1, 1):
+        raise ValueError("Date of birth must be on or after 1900-01-01")
+    return d
+
+
 class PatientBase(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100, examples=["Asha Patel"])
     date_of_birth: date = Field(..., examples=["1990-05-14"])
@@ -20,12 +45,10 @@ class PatientBase(BaseModel):
     haemoglobin: float = Field(..., gt=0, le=30, description="Haemoglobin in g/dL")
     cholesterol: float = Field(..., gt=0, le=1000, description="Total cholesterol in mg/dL")
 
-    @field_validator("date_of_birth")
+    @field_validator("date_of_birth", mode="before")
     @classmethod
-    def dob_cannot_be_in_future(cls, value: date) -> date:
-        if value > date.today():
-            raise ValueError("Date of birth cannot be in the future")
-        return value
+    def validate_date_of_birth(cls, value) -> date:
+        return _parse_dob(value)
 
     @field_validator("full_name")
     @classmethod
@@ -54,6 +77,12 @@ class PatientOut(PatientBase):
 
     # Lets Pydantic read attributes straight from the SQLAlchemy object.
     model_config = ConfigDict(from_attributes=True)
+
+
+class PatientUpdateOut(PatientOut):
+    """PUT response — includes what kind of change was saved."""
+
+    update_type: str  # blood_values | email_only | profile
 
 
 class HistoryOut(BaseModel):
